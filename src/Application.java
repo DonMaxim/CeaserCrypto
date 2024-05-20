@@ -1,4 +1,5 @@
 public class Application {
-    public Result run() {
+    public static void main(String[] args) {
+
     }
 }
