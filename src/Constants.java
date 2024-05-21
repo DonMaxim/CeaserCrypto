@@ -7,7 +7,7 @@ public class Constants {
    private static final String rus = "абвгдеёжзийклмнопрстуфхцчшщъыьэюя";
    private static final String eng = "abcdefghijklmnopqrstuvwxyz";
    private static final String cypher = "0123456789";
-   private static final String symbols = " .,<>/;:'\"!@#$%^&*()-_[]{}`~№?=+\n";
+   private static final String symbols = " .,<>/;:'\"!@#$%^&*()-_[]{}`~№?=+\n\t";
    public static String fullAlphabet = rus + eng + rus.toUpperCase() + eng.toUpperCase() + cypher + symbols;
    private static char[] alphabet;
    public static char[] getAlphabet() {
