@@ -38,7 +38,7 @@ public class Cipher {
         }
     }
 
-    private static void encrypt(CharBuffer input, CharBuffer output, int shift) {
+    static void encrypt(CharBuffer input, CharBuffer output, int shift) {
         while (input.hasRemaining()) {
             char c = input.get();
             Character encryptedC = encrypt(c, shift);
