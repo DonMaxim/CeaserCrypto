@@ -1,13 +1,5 @@
-import java.io.IOException;
-import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
-import java.nio.channels.FileChannel;
-import java.nio.charset.Charset;
-import java.nio.charset.CharsetDecoder;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
-import java.nio.file.StandardOpenOption;
 import java.util.Arrays;
 
 public class Cipher {
@@ -17,51 +9,21 @@ public class Cipher {
             return;
         }
 
-        try (FileChannel inputChannel = FileChannel.open(input, StandardOpenOption.READ);
-             FileChannel outputChannel = FileChannel.open(output, StandardOpenOption.WRITE, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING)) {
-            ByteBuffer byteBuffer = ByteBuffer.allocateDirect(8192);
-            CharBuffer inputCharBuffer = CharBuffer.allocate(8192);
-            CharBuffer outputCharBuffer = CharBuffer.allocate(8192);
-            CharsetDecoder inputDecoder = StandardCharsets.UTF_8.newDecoder();
-
-            while (inputChannel.read(byteBuffer) != -1) {
-                byteBuffer.flip();
-                inputDecoder.decode(byteBuffer, inputCharBuffer, false);
-                inputCharBuffer.flip();
-
-                encrypt(inputCharBuffer, outputCharBuffer, shift);
-                outputCharBuffer.flip();
-                inputCharBuffer.clear();
-
-                while (outputCharBuffer.hasRemaining()) {
-                    outputChannel.write(Charset.defaultCharset().encode(outputCharBuffer));
-                }
-                byteBuffer.compact();
-                outputCharBuffer.clear();
+        try (FileReader inputFile = new FileReader(input); FileWriter outputFile = new FileWriter(output)) {
+            while (inputFile.read() != -1) {
+                encrypt(inputFile.getCharBuffer(false), outputFile.getCharBuffer(), shift);
+                outputFile.write();
             }
-            byteBuffer.flip();
-            inputDecoder.decode(byteBuffer, inputCharBuffer, true);
-            inputCharBuffer.flip();
 
-            encrypt(inputCharBuffer, outputCharBuffer, shift);
-            outputCharBuffer.flip();
-            inputCharBuffer.clear();
-
-            while (outputCharBuffer.hasRemaining()) {
-                outputChannel.write(Charset.defaultCharset().encode(outputCharBuffer));
-            }
-            outputCharBuffer.clear();
-
-        } catch (NoSuchFileException e) {
-            System.err.println("File not found" + e.getMessage());
-        } catch (IOException e) {
-            e.printStackTrace();
+            encrypt(inputFile.getCharBuffer(true), outputFile.getCharBuffer(), shift);
+            outputFile.write();
         }
     }
 
     static void decryptFile(Path input, Path output, int shift) {
         encryptFile(input, output, shift * -1);
     }
+
     private static Character encrypt(char c, int shift) {
         char[] alphabet = Constants.getAlphabet();
         int index = Arrays.binarySearch(alphabet, c);
